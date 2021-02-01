@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
 
   <title>Budget Tracker</title>
 </head>
+
 <body>
   <div class="wrapper">
     <div class="total">
@@ -33,11 +35,11 @@
           <th>Amount</th>
         </thead>
         <tbody id="tbody">
-          
+
         </tbody>
       </table>
     </div>
-    
+
     <canvas id="myChart"></canvas>
   </div>
 
@@ -45,11 +47,21 @@
   <script src="index.js"></script>
   <script>
     // We request a database instance.
-    const request = indexedDB.open("firstDatabase", 1);
-    
+    const request = indexedDB.open("budgetDatabase", 1);
+
+    request.onupgradeneeded = event => {
+      const db = event.target.result;
+
+      const budgetStore = db.createObjectStore("budgetDatabase", {keyPath: "listID"});
+      budgetStore.createIndex("statusIndex", "status");
+    };
+
     // This returns a result that we can then manipulate.
-    request.onsuccess = event => {
-      console.log(request.result);
+    request.onsuccess = () => {
+      const db = event.target.result;
+      const transaction = db.transaction(["budgetDatabase"], "readwrite");
+      const toDoListStore = transaction.objectStore("budgetDatabase");
+      const statusIndex = toDoListStore.index("statusIndex");
     };
   </script>
   <script>
@@ -62,4 +74,5 @@
     }
   </script>
 </body>
+
 </html>

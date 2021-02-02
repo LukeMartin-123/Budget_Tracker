@@ -15,85 +15,9 @@
 </head>
 
 <body>
-  <div class="wrapper">
-    <div class="total">
-      <div class="total">Your total is: $<span id="total">0</span></div>
-    </div>
-
-    <div class="form">
-      <input type="text" id="t-name" placeholder="Name of transaction" />
-      <input type="number" min="0" id="t-amount" placeholder="Transaction amount" />
-      <button id="add-btn"><i class="fa fa-plus buttons"></i> Add Funds</button>
-      <button id="sub-btn"><i class="fa fa-minus"></i> Subtract Funds</button>
-      <p class="error"></p>
-    </div>
-
-    <div class="transactions">
-      <table>
-        <thead>
-          <th>Transaction</th>
-          <th>Amount</th>
-        </thead>
-        <tbody id="tbody">
-
-        </tbody>
-      </table>
-    </div>
-
-    <canvas id="myChart"></canvas>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+  <script src="db.js"></script>
   <script src="index.js"></script>
-  <script>
-    // We request a database instance.
-    const request = indexedDB.open("budgetDatabase", 1);
-
-    request.onupgradeneeded = event => {
-      const db = event.target.result;
-
-      const budgetStore = db.createObjectStore("budgetDatabase", { keyPath: "listID" });
-      budgetStore.createIndex("statusIndex", "status");
-    };
-
-    // This returns a result that we can then manipulate.
-    request.onsuccess = () => {
-      const db = event.target.result;
-      const transaction = db.transaction(["budgetDatabase"], "readwrite");
-      const budgetStore = transaction.objectStore("budgetDatabase");
-      const statusIndex = budgetStore.index("statusIndex");
-
-      // Adds data to our objectStore
-      budgetStore.add({ listID: "1", status: "complete" });
-      budgetStore.add({ listID: "2", status: "in-progress" });
-      budgetStore.add({ listID: "3", status: "complete" });
-      budgetStore.add({ listID: "4", status: "backlog" });
-
-      // Return an item by keyPath
-      const getRequest = budgetStore.get("1");
-      getRequest.onsuccess = () => {
-        console.log(getRequest.result);
-      };
-
-
-      // Opens a Cursor request and iterates over the documents.
-      const getCursorRequest = budgetStore.openCursor();
-      getCursorRequest.onsuccess = e => {
-        const cursor = e.target.result;
-        if (cursor) {
-          console.log(cursor.value);
-          cursor.continue();
-        } else {
-          console.log("No documents left!");
-        }
-      };
-      // // Return an item by index
-      // const getRequestIdx = statusIndex.getAll("complete");
-      // getRequestIdx.onsuccess = () => {
-      //   console.log(getRequestIdx.result);
-      // };
-    };
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {

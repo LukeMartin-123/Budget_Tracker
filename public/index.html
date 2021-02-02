@@ -15,9 +15,96 @@
 </head>
 
 <body>
-  <script src="db.js"></script>
-  <script src="index.js"></script>
+  <div class="wrapper">
+    <div class="total">
+      <div class="total">Your total is: $<span id="total">0</span></div>
+    </div>
+
+    <div class="form">
+      <input type="text" id="t-name" placeholder="Name of transaction" />
+      <input type="number" min="0" id="t-amount" placeholder="Transaction amount" />
+      <button id="add-btn"><i class="fa fa-plus buttons"></i> Add Funds</button>
+      <button id="sub-btn"><i class="fa fa-minus"></i> Subtract Funds</button>
+      <p class="error"></p>
+    </div>
+
+    <div class="transactions">
+      <table>
+        <thead>
+          <th>Transaction</th>
+          <th>Amount</th>
+        </thead>
+        <tbody id="tbody">
+
+        </tbody>
+      </table>
+    </div>
+
+    <canvas id="myChart"></canvas>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+  <script src="index.js"></script>
+  <script>
+
+    // We request a database instance.
+    const request = indexedDB.open("budgetDatabase", 1);
+
+    request.onupgradeneeded = event => {
+      const db = event.target.result;
+
+      db.createObjectStore("pending", { autoIncrement: true });
+    };
+
+    request.onerror = (event) => {
+      console.log("Oh no! " + event.target.errorCode);
+    }
+
+
+    request.onsuccess = () => {
+      const db = event.target.result;
+
+      if (navigator.onLine) {
+        verifyDB();
+      }
+    };
+
+    const verifyDB = () => {
+      const transaction = db.transaction(["pending"], "readwrite");
+      const budgetStore = transaction.objectStore("pending");
+
+
+      // Return an all table data
+      const getRequest = budgetStore.getAll();
+
+      getRequest.onsuccess = () => {
+        console.log(getRequest.result);
+
+        if (getAll.result.length > 0) {
+          fetch("/api/transaction/bulk", {
+            method: "POST",
+            body: JSON.stringify(getAll.result),
+            headers: {
+              Accept: "application/json, text/plain, */*",
+              "Content-Type": "application/json"
+            }
+          })
+            .then(response => {
+              return response.json();
+            })
+            .then(() => {
+              // delete records if successful
+              const transaction = db.transaction(["pending"], "readwrite");
+              const budgetStore = transaction.objectStore("pending");
+              budgetStore.clear();
+            });
+        }
+      };
+
+    }
+  </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+  <script src="index.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
